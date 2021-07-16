@@ -1,0 +1,72 @@
+# JEMCC Makefile for use with Visual Studio C++.
+# Copyright (C) 1999-2004 J.M. Heisz 
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# See the file named COPYRIGHT in the root directory of the source
+# distribution for specific references to the GNU General Public License, 
+# as well as further clarification on your rights to use this software.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+#
+
+
+INCLUDES = /I..\..\src\engine\include /I..\..\include
+OBJ = zipfile.obj utility.obj descriptor.obj classparser.obj
+EXE = zipfile.exe utility.exe descriptor.exe classparser.exe
+
+#
+# Standard rules apply
+#
+!include ..\..\win32\MakeRules.vsc
+
+#
+# Special case for automatically running all of the test cases
+#
+check:
+	zipfile
+	utility
+	descriptor
+	classparser
+
+#
+# Executable creations follow
+#
+zipfile.exe: zipfile.obj
+	$(CC) $(CFLAGS) /ML zipfile.obj \
+              ..\..\src\engine\sysenv\zipfile.obj \
+              ..\..\src\engine\sysenv\file.obj \
+              ..\..\src\engine\zlib\adler32.obj \
+              ..\..\src\engine\zlib\crc32.obj \
+              ..\..\src\engine\zlib\inflate.obj \
+              ..\..\src\engine\zlib\infblock.obj \
+              ..\..\src\engine\zlib\inftrees.obj \
+              ..\..\src\engine\zlib\infcodes.obj \
+              ..\..\src\engine\zlib\infutil.obj \
+              ..\..\src\engine\zlib\inffast.obj \
+              ..\..\src\engine\zlib\zutil.obj
+
+utility.exe: utility.obj
+	$(CC) $(CFLAGS) /ML utility.obj \
+              ..\..\src\engine\core\hash.obj \
+              ..\..\src\engine\core\sundry.obj
+
+descriptor.exe: descriptor.obj
+	$(CC) $(CFLAGS) /ML descriptor.obj \
+              ..\..\src\engine\core\classparser.obj \
+              ..\..\src\engine\core\sundry.obj
+
+classparser.exe: classparser.obj
+	$(CC) $(CFLAGS) /ML classparser.obj \
+              ..\..\src\engine\core\classparser.obj \
+              ..\..\src\engine\core\sundry.obj

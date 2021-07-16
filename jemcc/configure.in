@@ -1,0 +1,482 @@
+#
+#  Configuration macro set for the JEMCC implementation.
+#  Copyright (C) 1999-2004 J.M. Heisz
+#
+#  This library is free software; you can redistribute it and/or
+#  modify it under the terms of the GNU Lesser General Public
+#  License as published by the Free Software Foundation; either
+#  version 2.1 of the License, or (at your option) any later version.
+#
+#  See the file named COPYRIGHT in the root directory of the source
+#  distribution for specific references to the GNU Lesser General Public
+#  License, as well as further clarification on your rights to use this
+#  software.
+#
+#  This library is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+#  Lesser General Public License for more details.
+#
+#  You should have received a copy of the GNU Lesser General Public
+#  License along with this library; if not, write to the Free Software
+#  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+#
+
+##########################################################################
+# "Conventional" setups using autoconf/automake/libtool/local macros
+##########################################################################
+
+AC_REVISION($Id: configure.in,v 1.12 2004/01/27 22:11:30 heisz Exp $)dnl
+
+# Make sure someone didn't mistype the --srcdir option
+AC_INIT(src/engine/Makefile.am)
+
+# Definitions required for packaging and automake setup (and startup msg)
+PACKAGE=JEMCC
+VERSION=1.0
+AC_MSG_RESULT(Configuring ${PACKAGE}-Version ${VERSION})
+AC_SUBST(PACKAGE)
+AC_SUBST(VERSION)
+
+# Secret location for the standard configuration scripts (see local README)
+AC_CONFIG_AUX_DIR(configure-scripts)
+
+# Obtain the canonical host information for the sysenv compilations
+AC_CANONICAL_HOST
+
+# Configure the automake and subdirectory make operations
+AM_INIT_AUTOMAKE(${PACKAGE}, ${VERSION})
+AC_PROG_MAKE_SET
+AC_PROG_CXX
+AC_PROG_CC
+AM_PROG_AS
+
+# We need the help of libtool to generate our shared libraries
+AM_PROG_LIBTOOL
+
+# Standard things to look for, things to include
+AC_HEADER_STDC
+AC_FUNC_MEMCMP
+AC_FUNC_MMAP
+AC_CHECK_HEADERS(stdlib.h unistd.h string.h strings.h sys/types.h sys/stat.h)
+AC_CHECK_FUNCS(memcpy)
+
+##########################################################################
+# Compiler flags for optimization/debug determined by development mode
+##########################################################################
+AC_ARG_ENABLE(devel-mode,
+[  --enable-devel-mode     specify development mode (release|build|rational) ],
+[
+    DEVEL_MODE=${enableval}
+],
+[
+    DEVEL_MODE=release
+])
+if test "${DEVEL_MODE}" = "release"; then
+    # This test is very autoconf dependent, do nothing if CFLAGS was env set
+    if test "${ac_test_CFLAGS}" != "set"; then
+        if test "${GCC}" = "yes"; then
+            CFLAGS="-O2 -Wall"
+        else
+            CFLAGS=
+        fi
+    fi
+fi
+if test "${DEVEL_MODE}" = "rational"; then
+    # This mode is specific to the Solaris development environment
+    CFLAGS="-g -Wall"
+fi
+if test "${DEVEL_MODE}" = "build"; then
+    if test "${GCC}" = "yes"; then
+        # Add the full warning sets
+        CFLAGS="${CFLAGS} -Wall"
+    fi
+fi
+
+##########################################################################
+# Link against the efence library?
+##########################################################################
+AC_ARG_ENABLE(efence,
+[  --enable-efence         link against Electric Fence library for testing ],
+[
+    ENABLE_EFENCE=${enableval}
+],
+[
+    ENABLE_EFENCE=no
+])
+if test "${ENABLE_EFENCE}" = "yes"; then
+    EFENCE_LIB="-lefence"
+else
+    EFENCE_LIB=""
+fi
+AC_SUBST(EFENCE_LIB)
+
+##########################################################################
+# Are the testsuite programs to be built (faster build if not)
+##########################################################################
+AC_ARG_ENABLE(testsuite,
+[  --enable-testsuite      build the full testsuite libraries/programs ],
+[
+    ENABLE_TESTSUITE=${enableval}
+],
+[
+    ENABLE_TESTSUITE=no
+])
+if test "${ENABLE_TESTSUITE}" = "yes"; then
+    TESTSUITE_DIR="testsuite"
+
+    # Testsuite compilation requires Java development kit
+    AC_JAVA_DEVKIT
+else
+    TESTSUITE_DIR=""
+fi
+AC_SUBST(TESTSUITE_DIR)
+
+##########################################################################
+# Should the errorsweep tests be enabled.
+# NOTE: this alters the internal behaviour of the JEMCC libraries.  It should
+#       not be used outside of a test environment.
+##########################################################################
+AC_ARG_ENABLE(errorsweep,
+[  --enable-errorsweep       alter the JEMCC libraries for full error tests ],
+[
+    ENABLE_ERRORSWEEP=${enableval}
+],
+[
+    ENABLE_ERRORSWEEP=no
+])
+if test "${ENABLE_ERRORSWEEP}" = "yes"; then
+    if test "${DEVEL_MODE}" = "release"; then
+        echo "*** WARNING: --enable-errorsweep is ignored in release mode ***"
+    else
+        AC_DEFINE(ENABLE_ERRORSWEEP)
+    fi
+fi
+AC_SUBST(ENABLE_ERRORSWEEP)
+
+##########################################################################
+# If the RedHat Mauve testsuite is available, use it
+##########################################################################
+AC_ARG_WITH(mauve-home,
+[  --with-mauve-home=DIR   specifies the root of the Mauve distribution ],
+[
+    MAUVE_HOME=${withval}
+])
+if test "${MAUVE_HOME}" != ""; then
+    AC_MSG_CHECKING(for proper packaging of the Mauve distribution)
+    if test -f "${MAUVE_HOME}/gnu/testlet/TestHarness.class"; then
+        AC_MSG_RESULT(ok)
+    else
+        AC_MSG_RESULT(invalid)
+        AC_MSG_ERROR([TestHarness.class not found in ${MAUVE_HOME}/gnu/testlet.
+Verify specified directory or installation/compilation of Mauve package.])
+        MAUVE_HOME=""
+    fi
+fi
+if test "${MAUVE_HOME}" = ""; then
+    MAUVE_DIR=""
+else
+    MAUVE_DIR="mauve"
+fi
+AC_SUBST(MAUVE_HOME)
+AC_SUBST(MAUVE_DIR)
+
+##########################################################################
+# Handle the OS-specific threading definitions/libraries
+##########################################################################
+case "$host" in
+*linux*)
+    THREAD_LIB="-lpthread";;
+*solaris*)
+    THREAD_LIB="-lpthread -lposix4";;
+*)
+    exit 1;;
+esac
+AC_SUBST(THREAD_LIB)
+
+##########################################################################
+# Handle the Java data type sizing/alignment requirements
+##########################################################################
+case "$host" in
+i*86-*)
+    JBYTE_TYPE_DEF="signed char";
+    JBOOLEAN_TYPE_DEF="unsigned char";
+    JFLOAT_TYPE_DEF="float";
+    JSHORT_TYPE_DEF="signed short";
+    JCHAR_TYPE_DEF="unsigned short";
+    JINT_TYPE_DEF="signed int";
+    JUINT_TYPE_DEF="unsigned int";
+    JLONG_TYPE_DEF="signed long long";
+    JDOUBLE_TYPE_DEF="double";
+
+    JBYTE_ALIGN_DEF=1;
+    JBOOLEAN_ALIGN_DEF=1;
+    JSHORT_ALIGN_DEF=2;
+    JCHAR_ALIGN_DEF=2;
+    JINT_ALIGN_DEF=4;
+    JUINT_ALIGN_DEF=4;
+    JLONG_ALIGN_DEF=4;
+    JFLOAT_ALIGN_DEF=4;
+    JDOUBLE_ALIGN_DEF=4;
+    JOBJECT_ALIGN_DEF=4;
+
+    FRAME_ALIGNMENT_DEF=0;
+
+    CPU_ARCH_DIR=ia32;;
+sparc-*)
+    JBYTE_TYPE_DEF="signed char";
+    JBOOLEAN_TYPE_DEF="unsigned char";
+    JFLOAT_TYPE_DEF="float";
+    JSHORT_TYPE_DEF="signed short";
+    JCHAR_TYPE_DEF="unsigned short";
+    JINT_TYPE_DEF="signed int";
+    JUINT_TYPE_DEF="unsigned int";
+    JLONG_TYPE_DEF="signed long long";
+    JDOUBLE_TYPE_DEF="double";
+
+    JBYTE_ALIGN_DEF=1;
+    JBOOLEAN_ALIGN_DEF=1;
+    JSHORT_ALIGN_DEF=2;
+    JCHAR_ALIGN_DEF=2;
+    JINT_ALIGN_DEF=4;
+    JUINT_ALIGN_DEF=4;
+    JLONG_ALIGN_DEF=8;
+    JFLOAT_ALIGN_DEF=4;
+    JDOUBLE_ALIGN_DEF=8;
+    JOBJECT_ALIGN_DEF=4;
+
+    FRAME_ALIGNMENT_DEF=1;
+
+    CPU_ARCH_DIR=sparc32;;
+*)
+AC_MSG_CHECKING(Java specific type sizes for $host)
+AC_TRY_RUN([
+#include <stdio.h>
+
+int main(int argc, char **argv) {
+    char *inttwo, *intfour, *inteight, *dbleight;
+
+    FILE *f = fopen("conftestval", "w");
+    if (f == NULL) {
+        (void) fprintf(stderr, 
+                       "ERROR: Failed to open information transfer file.\n");
+        exit(1);
+    }
+    if ((sizeof(char) != 1) || (sizeof(float) != 4)) {
+        (void) fprintf(stderr, 
+                       "ERROR: Char/float is not 1/4 byte(s)!\n");
+        exit(1);
+    }
+    if (sizeof(void *) != 4) {
+        (void) fprintf(stderr, 
+                       "ERROR: Only four-byte pointers not supported!\n");
+        exit(1);
+    }
+
+    if (sizeof(int) == 2) inttwo = "int";
+    if (sizeof(short) == 2) inttwo = "short";
+    if (sizeof(long) == 4) intfour = "long";
+    if (sizeof(int) == 4) intfour = "int";
+    if (sizeof(long) == 8) inteight = "long";
+    if (sizeof(long long) == 8) inteight = "long long";
+    if (sizeof(double) == 8) dbleight = "double";
+    if (sizeof(long double) == 8) dbleight = "long double";
+
+    (void) fprintf(f, "jbyte: signed char\n");
+    (void) fprintf(f, "jboolean: unsigned char\n");
+    (void) fprintf(f, "jfloat: float\n");
+    (void) fprintf(f, "jshort: signed %s\n", inttwo);
+    (void) fprintf(f, "jchar: unsigned %s\n", inttwo);
+    (void) fprintf(f, "jint: signed %s\n", intfour);
+    (void) fprintf(f, "juint: unsigned %s\n", intfour);
+    (void) fprintf(f, "jlong: signed %s\n", inteight);
+    (void) fprintf(f, "jdouble: %s\n", dbleight);
+    (void) fclose(f);
+
+    exit(0);
+}
+], 
+[ 
+    # Save the output for maintenance/notification
+    cat conftestval 1>& 5
+
+    # Extract the type definitions
+    JBYTE_TYPE_DEF=`cat conftestval | grep jbyte | sed 's/^.*: //'`
+    JBOOLEAN_TYPE_DEF=`cat conftestval | grep jboolean | sed 's/^.*: //'`
+    JFLOAT_TYPE_DEF=`cat conftestval | grep jfloat | sed 's/^.*: //'`
+    JSHORT_TYPE_DEF=`cat conftestval | grep jshort | sed 's/^.*: //'`
+    JCHAR_TYPE_DEF=`cat conftestval | grep jchar | sed 's/^.*: //'`
+    JINT_TYPE_DEF=`cat conftestval | grep jint | sed 's/^.*: //'`
+    JUINT_TYPE_DEF=`cat conftestval | grep juint | sed 's/^.*: //'`
+    JLONG_TYPE_DEF=`cat conftestval | grep jlong | sed 's/^.*: //'`
+    JDOUBLE_TYPE_DEF=`cat conftestval | grep jdouble | sed 's/^.*: //'`
+    AC_MSG_RESULT(ok)
+], 
+[
+    AC_MSG_RESULT(failed)
+    AC_MSG_ERROR(Fatal error determining type size information.  See the config.log file for more information.)
+    exit
+],
+[
+    AC_MSG_RESULT(failed)
+    AC_MSG_ERROR(Cross-compiled determination of type size information not supported at present.)
+    exit
+])
+
+AC_MSG_CHECKING(Java specific type alignments for $host)
+AC_TRY_RUN([
+#include <stdio.h>
+
+typedef ${JBYTE_TYPE_DEF} jbyte;
+typedef ${JBOOLEAN_TYPE_DEF} jboolean;
+typedef ${JFLOAT_TYPE_DEF} jfloat;
+typedef ${JSHORT_TYPE_DEF} jshort;
+typedef ${JCHAR_TYPE_DEF} jchar;
+typedef ${JINT_TYPE_DEF} jint;
+typedef ${JUINT_TYPE_DEF} juint;
+typedef ${JLONG_TYPE_DEF} jlong;
+typedef ${JDOUBLE_TYPE_DEF} jdouble;
+typedef void *jobject;
+
+int main(int argc, char **argv) {
+    /* Single byte offset structures for each Java type */
+    struct jbyte_alignment { jbyte ch; jbyte val; } *jbyteTest = NULL;
+    struct jboolean_alignment { jbyte ch; jboolean val; } *jbooleanTest = NULL;
+    struct jshort_alignment { jbyte ch; jshort val; } *jshortTest = NULL;
+    struct jchar_alignment { jbyte ch; jchar val; } *jcharTest = NULL;
+    struct jint_alignment { jbyte ch; jint val; } *jintTest = NULL;
+    struct juint_alignment { jbyte ch; juint val; } *juintTest = NULL;
+    struct jlong_alignment { jbyte ch; jlong val; } *jlongTest = NULL;
+    struct jfloat_alignment { jbyte ch; jfloat val; } *jfloatTest = NULL;
+    struct jdouble_alignment { jbyte ch; jdouble val; } *jdoubleTest = NULL;
+    struct jobject_alignment { jbyte ch; jobject val; } *jobjectTest = NULL;
+
+    FILE *f = fopen("conftestval", "w");
+    if (f == NULL) {
+        (void) fprintf(stderr, 
+                       "ERROR: Failed to open information transfer file.\n");
+        exit(1);
+    }
+
+    if (((&(jbyteTest->ch)) != NULL) || ((&(jbooleanTest->ch)) != NULL) ||
+        ((&(jshortTest->ch)) != NULL) || ((&(jcharTest->ch)) != NULL) ||
+        ((&(jintTest->ch)) != NULL) || ((&(juintTest->ch)) != NULL) ||
+        ((&(jlongTest->ch)) != NULL) || ((&(jfloatTest->ch)) != NULL) ||
+        ((&(jdoubleTest->ch)) != NULL) || ((&(jobjectTest->ch)) != NULL)) {
+        (void) fprintf(stderr, 
+                       "ERROR: Base alignment errors have occurred.\n");
+        exit(1);
+    }
+
+    (void) fprintf(f, "jbyte: %i\n", (int) &(jbyteTest->val));
+    (void) fprintf(f, "jboolean: %i\n", (int) &(jbooleanTest->val));
+    (void) fprintf(f, "jshort: %i\n", (int) &(jshortTest->val));
+    (void) fprintf(f, "jchar: %i\n", (int) &(jcharTest->val));
+    (void) fprintf(f, "jint: %i\n", (int) &(jintTest->val));
+    (void) fprintf(f, "juint: %i\n", (int) &(juintTest->val));
+    (void) fprintf(f, "jlong: %i\n", (int) &(jlongTest->val));
+    (void) fprintf(f, "jfloat: %i\n", (int) &(jfloatTest->val));
+    (void) fprintf(f, "jdouble: %i\n", (int) &(jdoubleTest->val));
+    (void) fprintf(f, "jobject: %i\n", (int) &(jobjectTest->val));
+
+    if ((((void *) &(jdoubleTest->val)) != ((void *) &(jlongTest->val))) || 
+        (((void *) &(jdoubleTest->val)) != ((void *) &(jintTest->val))) ||
+        (((void *) &(jdoubleTest->val)) != ((void *) &(jobjectTest->val)))) { 
+        (void) fprintf(f, "misalign: 1\n");
+    } else {
+        (void) fprintf(f, "misalign: 0\n");
+    }
+    (void) fclose(f);
+
+    exit(0);
+}
+], 
+[ 
+    # Save the output for maintenance/notification
+    cat conftestval 1>& 5
+
+    # Extract the alignment settings
+    JBYTE_ALIGN_DEF=`cat conftestval | grep jbyte | sed 's/^.*: //'`
+    JBOOLEAN_ALIGN_DEF=`cat conftestval | grep jboolean | sed 's/^.*: //'`
+    JSHORT_ALIGN_DEF=`cat conftestval | grep jshort | sed 's/^.*: //'`
+    JCHAR_ALIGN_DEF=`cat conftestval | grep jchar | sed 's/^.*: //'`
+    JINT_ALIGN_DEF=`cat conftestval | grep jint | sed 's/^.*: //'`
+    JUINT_ALIGN_DEF=`cat conftestval | grep juint | sed 's/^.*: //'`
+    JLONG_ALIGN_DEF=`cat conftestval | grep jlong | sed 's/^.*: //'`
+    JFLOAT_ALIGN_DEF=`cat conftestval | grep jfloat | sed 's/^.*: //'`
+    JDOUBLE_ALIGN_DEF=`cat conftestval | grep jdouble | sed 's/^.*: //'`
+    JOBJECT_ALIGN_DEF=`cat conftestval | grep jobject | sed 's/^.*: //'`
+    FRAME_ALIGNMENT_DEF=`cat conftestval | grep misalign | sed 's/^.*: //'`
+    AC_MSG_RESULT(ok)
+], 
+[
+    AC_MSG_RESULT(failed)
+    AC_MSG_ERROR(Fatal error determining alignment information.  See the config.log file for more information.)
+    exit
+],
+[
+    AC_MSG_RESULT(failed)
+    AC_MSG_ERROR(Cross-compiling of alignment information not supported at present.)
+    exit
+])
+SEND_LOG_MSG=yes
+esac
+
+AC_SUBST(CPU_ARCH_DIR)
+
+AC_SUBST(JBYTE_TYPE_DEF)
+AC_SUBST(JBOOLEAN_TYPE_DEF)
+AC_SUBST(JFLOAT_TYPE_DEF)
+AC_SUBST(JSHORT_TYPE_DEF)
+AC_SUBST(JCHAR_TYPE_DEF)
+AC_SUBST(JINT_TYPE_DEF)
+AC_SUBST(JUINT_TYPE_DEF)
+AC_SUBST(JLONG_TYPE_DEF)
+AC_SUBST(JDOUBLE_TYPE_DEF)
+
+AC_SUBST(JBYTE_ALIGN_DEF)
+AC_SUBST(JBOOLEAN_ALIGN_DEF)
+AC_SUBST(JSHORT_ALIGN_DEF)
+AC_SUBST(JCHAR_ALIGN_DEF)
+AC_SUBST(JINT_ALIGN_DEF)
+AC_SUBST(JUINT_ALIGN_DEF)
+AC_SUBST(JLONG_ALIGN_DEF)
+AC_SUBST(JFLOAT_ALIGN_DEF)
+AC_SUBST(JDOUBLE_ALIGN_DEF)
+AC_SUBST(JOBJECT_ALIGN_DEF)
+
+AC_SUBST(FRAME_ALIGNMENT_DEF)
+
+##########################################################################
+
+# All done, set up all of the configuration specific files
+AC_OUTPUT(
+include/jnitypes.h
+Makefile 
+src/Makefile
+src/engine/Makefile
+src/engine/zlib/Makefile 
+src/engine/sysenv/Makefile
+src/engine/sysenv/sysctrl.h
+src/engine/core/Makefile
+src/engine/classes/Makefile
+src/engine/classes/reflect/Makefile
+src/engine/jni/Makefile
+tools/Makefile
+testsuite/Makefile 
+testsuite/internals/Makefile
+testsuite/indigo/Makefile
+testsuite/mauve/Makefile
+)
+
+if test "${SEND_LOG_MSG}" = "yes"; then
+    AC_MSG_RESULT()
+    AC_MSG_RESULT(********************************************************)
+    AC_MSG_RESULT(* Congratulations!  You have run this configure script *)
+    AC_MSG_RESULT(* against a system which has not yet had its Java type *)
+    AC_MSG_RESULT(* constants predefined.  To help others in the future  *)
+    AC_MSG_RESULT(* please send the config.log file from this directory  *)
+    AC_MSG_RESULT(* to the maintainers of the JEMCC package.             *)
+    AC_MSG_RESULT(********************************************************)
+    AC_MSG_RESULT()
+fi

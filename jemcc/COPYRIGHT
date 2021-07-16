@@ -1,0 +1,258 @@
+$Id: COPYRIGHT,v 1.1.1.1 2003/05/12 20:00:46 heisz Exp $
+
+3rd Party Copyrights
+--------------------
+
+Before discussing the copyright information for the JEMCC-specific source
+code, it should be noted that there are two collections of code by other
+authors embedded in this distribution (each with their own separate
+copyrights and licensing terms).
+
+The first is located in the 'configure-scripts' directory and contains
+unmodified copies of the shell scripts needed to support the libtool,
+automake and autoconf toolkits.  See the README file in this directory for
+more information and each file for associated copyright and licensing
+information.  Note that these scripts are only included in the source
+distribution for the purposes of building/compiling JEMCC and are not part
+of the final binary distribution.  As such, their licensing and copyright
+restrictions do not play a part in the inclusion of the JEMCC binaries in
+distributed applications.
+
+The second collection is the 'zlib' library implementation appearing in
+the 'src/engine/zlib' directory.  Again, this is an unmodified copy of the
+zlib distribution, aside from the Makefile modifications needed to compile
+the library into JEMCC.  See the README file in this directory for additional
+information.  In this instance, the zlib code is directly compiled into the
+JEMCC binaries and as such its licensing and copyright restrictions would
+impact applications incorporating the resulting binaries.  However, the
+zlib copyright/license is completely open (see below) aside from the
+modification and warranty statements which are compatible with the Gnu Public
+Licenses under which the JEMCC source code is released.
+
+A suitable recognition would be to acknowledge the authors of the zlib
+package as part of the statements required in using JEMCC under the terms
+of the Gnu Public Licenses.  In this spirit, the acknowledgement and
+copyright information for the zlib distribution is included below:
+
+ (C) 1995-1998 Jean-loup Gailly and Mark Adler
+
+  This software is provided 'as-is', without any express or implied
+  warranty.  In no event will the authors be held liable for any damages
+  arising from the use of this software.
+
+  Permission is granted to anyone to use this software for any purpose,
+  including commercial applications, and to alter it and redistribute it
+  freely, subject to the following restrictions:
+
+  1. The origin of this software must not be misrepresented; you must not
+     claim that you wrote the original software. If you use this software
+     in a product, an acknowledgment in the product documentation would be
+     appreciated but is not required.
+  2. Altered source versions must be plainly marked as such, and must not be
+     misrepresented as being the original software.
+  3. This notice may not be removed or altered from any source distribution.
+
+  Jean-loup Gailly        Mark Adler
+  jloup@gzip.org          madler@alumni.caltech.edu
+
+If you use the zlib library in a product, we would appreciate *not*
+receiving lengthy legal documents to sign. The sources are provided
+for free but without warranty of any kind.  The library has been
+entirely written by Jean-loup Gailly and Mark Adler; it does not
+include third-party code.
+
+If you redistribute modified sources, we would appreciate that you include
+in the file ChangeLog history information documenting your changes.
+
+Details of the JEMCC Copyright
+------------------------------
+
+The copyrights for the authored materials in this distribution follow two
+models, as the core virtual machine and associated libraries are intended for
+redistribution in other applications, while the toolkit and test components
+are intended for development (non-distribution) purposes only.
+
+In general, this software is released under the two GNU licenses - the
+General Public License (GPL) and the Lesser General Public License (LGPL).
+The terms of these licenses can be found in this distribution in the files
+COPYING (GPL) and COPYING.LESSER (LGPL).  Each file in this distribution
+declares in its preamble which of the two licenses apply to the contents of
+the file.  While the author emphatically supports the GNU initiatives for
+free software and understands the rationale for the "desired" release of
+software under the more restrictive GPL, the bulk of the JEMCC software is
+released under the LGPL.  This is for two reasons:
+
+ - As pointed out on the gnu.org website, the usage of the GPL for a library
+   is most desirable when the library adds significant new features, not
+   when it provides identical support to libraries available elsewhere.  In
+   this particular case, an alternative "library" is always available from Sun.
+
+ - After years of pouring effort into various systems that never see
+   production, the author wants his software to be used.  Since the entire
+   basis for this software is to provide a lighter application framework
+   on which distributable applications could be built, releasing it as GPL
+   software could preclude such a usage (even if only due to perception).
+
+To this end, the following statements describe the intents of the author
+in providing this code and clarify in less formal terms your rights to use
+this software:
+
+1) The code contained in the 'src' directory, along with the jemcc.c file
+   in the 'tools' directory, form a complete virtual machine which is capable
+   of running Java programs.  The contents of the 'include' directory are
+   part of this virtual machine, providing the prototype information for
+   extensions to the machine.  This virtual machine is considered by the author
+   to be identical to a "library" and is released under the LGPL.  As such,
+   you are permitted to bundle and distribute this virtual machine, in whole
+   or in part, into your own application (open-source or proprietary),
+   according to the following conditions and clarifications:
+
+    a) You must grant the same license to use, modify and distribute the
+       JEMCC virtual machine to third parties, including the availability
+       and distribution of the source code, as described in the LGPL.
+       You do *not* have to grant such license for code and data specific
+       to your application running on the JEMCC virtual machine, be it Java
+       bytecode, JNI native extensions or JEMCC-based native extensions.
+       Note that, as long as you use the conventional dynamic linking
+       mechanisms of Java and JEMCC to incorporate your native code, you meet
+       the requirements of relinking a "work that uses the Library" as
+       described in Section 6 of the LGPL.
+
+    b) Any modifications to the JEMCC virtual machine source code (e.g. bug
+       fixes, enhancements, optimizations, etc.), which do not completely
+       replace a component must be licensed under the LGPL with all of the
+       associated terms and conditions.  In this case, replacing an entire
+       class with your own independently produced implementation is the
+       appropriate metric for when this does not apply.  Changes to the
+       core of the virtual machine (not being a class in itself) should be
+       licensed under the LGPL.  Hopefully you will see fit to send any
+       modifications back to the author for the betterment of all.
+
+       NOTE: all non-proprietrary modifications must be performed in a
+       "clean-room" manner (see Section (4) below) if they are to be
+       incorporated back into the JEMCC distribution.
+
+    c) Should you choose to introduce a proprietary replacement for a JEMCC
+       bound class according to (b) above, you must bind this to your
+       application as a separate component, not within the original JEMCC
+       libraries themselves (i.e. the original library structures and
+       classes must remain intact - see the discussions at the end of
+       section 2 of the LGPL).  A program running with the "standard"
+       virtual machine linked against your distribution of the "standard"
+       libraries should not encounter your proprietary class.
+
+       To accomplish this, you would need to modify the classloading
+       mechanisms in the JEMCC virtual machine to appropriately "pick up"
+       your class implementation instead of the original one at the
+       appropriate time.  The modifications you make to the virtual machine
+       to accomplish this would fall under the LGPL, but your proprietary
+       code would not.
+
+    d) There is one waiver granted by the author to the conditions described
+       in (b) above.  In situations where a proprietary modification is
+       made to the JEMCC libraries for your application where revealing
+       such modifications would compromise the security of your application
+       or organization, the requirement to release your modifications is
+       hereby waived.  This applies whether your changes are a complete or
+       partial modification of one or more components of the source
+       distribution.  Any such proprietary code must still be linked to your
+       application outside of the standard JEMCC libraries as described
+       in (c) above.  This waiver does *not* grant permission to incorporate
+       malicious mechanisms intended to prevent users from exercising their
+       rights to the virtual machine as described above and in the LGPL but
+       only provides for protection of security code and data specific to your
+       application or organization.
+
+    NOTE: In the above descriptions, the term "libraries" refers to the
+    binary linking libraries containing the core of the virtual machine and
+    the associated JEMCC implementations of the standard Java packages.
+
+2) The 'jemcc_builder' program contained in the 'tools' directory is licensed
+   under the GPL, as it is not intended for release with any application.
+   Any modifications to this program must likewise be released under the
+   terms of the GPL.
+
+   However, the *output* of this program, being based entirely on your
+   provided input, is not bound under any license associated with the JEMCC
+   distribution.  This program is provided for your private use in the
+   generation of your own JEMCC-based implementations of Java libraries
+   for your application.  The copyright and licensing of the resulting output
+   of the program is up to you.  The copyright information that is output
+   with the -c option is used is strictly for the convenience of the author
+   in producing the JEMCC libraries and should not be considered binding on
+   you in any way (nor does it license the program under the LGPL).
+
+3) The contents of the 'testsuite' directory provide a complete regression
+   test system for the JEMCC distribution and are also licensed under the GPL
+   as they are not intended for redistribution with an application.
+
+   Should you be developing your own Java virtual machine, you may choose
+   to incorporate/redistribute the non-JEMCC-specific test programs (for
+   example, mauve and indigo) with your own distribution as part of your
+   regression testsuite.  This is acceptable provided that you follow the
+   terms of the GPL, which is straightforward should you be releasing your
+   implementation under the GPL.  If you are releasing your implementation
+   under the LGPL (as the JEMCC virtual machine is), you may still include
+   the testsuite provided that you maintain a dual LGPL/GPL licensing as
+   has been done here (where the included testsuite components remain a
+   GPL licensed entity).  If you are developing a proprietary virtual
+   machine, you cannot bundle the test programs with it, but you could
+   release them as a separate, GPL licensed distribution.  All of these
+   conditions only apply to the repackaging and redistribution of the test
+   components - any developer of a virtual machine, be it open-source or
+   proprietary, is freely permitted to run these programs against their
+   machine for the purposes of testing and debugging.
+
+   NOTE: the 'mauve' components contained in the 'testsuite' directory do
+   not contain or incorporate any source code that originates from the
+   official Mauve test collection produced by Cygnus/RedHat.  All of these
+   test programs have been written by the author utilizing the Mauve base
+   API's for compatibility and are somewhat too rigorous and JEMCC centric
+   for general consumption.  As much as possible, the tests contained
+   therein have been passed onto RedHat for inclusion into the official
+   (generic) Mauve distribution.
+
+4) The implementation of the JEMCC virtual machine and associated Java
+   package library implementations has been performed by the author in
+   a "clean-room" manner.  No examination/review of Java source code from
+   Sun or other non-GPL sources has occured, aside from the Javadocs and
+   programming interfaces which are publicly published by Sun.  The only
+   exception to this is the Java Swing package set (due to work with Sun
+   on an application which required such review) - as a result, no
+   implementation of the Swing packages will ever be included in the JEMCC
+   distribution.
+
+   Under the terms described above you are obligated to release any
+   non-proprietary modifications made to the JEMCC source and hopefully
+   return them to the author for inclusion in subsequent releases.  However,
+   any such modifications which compromise the "clean-room" development
+   of JEMCC (e.g. changes made having ever reviewed any Sun or other
+   non-GPL source code) should *not*, under any circumstances, be returned
+   to the author or incorporated in the JEMCC release, for obvious legal
+   reasons.  If you are unsure of your status, please assume the worst case
+   scenario - let the author know of any problems or required enhancements,
+   but do not provide any source details.  If you choose to compromise your
+   own redistribution of the JEMCC virtual machine, you must:
+
+     - clearly indicate in your modifications to the source code that they
+       are not "clean-room", to avoid accidental incorporation into the
+       original JEMCC source distribution by unsuspecting third parties
+
+     - clearly indicate in your application that a modified version of
+       the JEMCC virtual machine is in use which incorporates other
+       code which may be otherwise licensed
+
+     - make your own legal arrangements regarding the use of the other
+       source code (licensed or not)
+
+<LEGAL_NOTE>
+All of the above statements are intended to clarify your ability to use this
+software with or as part of other applications and should not restrict your
+rights to utilize the software according to the appropriate GPL/LGPL terms.
+Should any of the above statements unduly restrict your rights to use the
+software according to the terms of the associated license, said statement,
+and only that statement, shall be considered null and void.  Should any of the
+above statements grant you additional rights to use the software beyond those
+described in the associated license, that is permitted and the statement is
+valid.
+</LEGAL_NOTE>
