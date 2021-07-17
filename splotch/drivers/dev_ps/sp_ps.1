@@ -1,0 +1,135 @@
+.\" @(#) splotch.1 2.1 sysadm@sparky.phy.queensu.ca 01/04/93
+.TH SP_PS 1 "April 1, 1993" "Version 2.1" "sPLOTch! DRIVERS"
+.SH NAME
+sp_ps - convert sdvi output to PostScript
+.SH SYNOPSIS
+.B sp_ps 
+[
+.I options
+] [
+.I filename
+]
+.SH DESCRIPTION
+.LP
+.B
+sp_ps
+reads the sdvi file
+.I filename
+produced by the sPLOTch! program
+and converts it into fully conforming Level 1 PostScript for printing 
+purposes.  Normally, the output is automatically forwarded to an appropriate
+laserprinter, although it can be redirected into a file or to one of the
+standard output channels.  If no 
+.I filename
+is given,
+.I sp_ps
+reads the sdvi information from the standard input (for use as a direct
+output driver).
+.SH OPTIONS
+.TP
+.B -c num
+Produces
+.I num
+copies of the output, through the setting of the 
+.I #copies
+entry in the postscript userdict.  This generates multiple copies of
+sPLOTch! output very quickly, as the page description is only processed once.
+.TP
+.B -e
+Disables the use of the 
+.I showpage
+command in the resulting PostScript output.  This allows the output to
+be included as an Extended PostScript diagram by programs which do not
+disable the showpage command properly.  Note: multiple page outputs,
+which do not lend themselves to EPS file inclusion, will be rather mangled
+by the use of this option.
+.TP
+.B -f
+Enables absolute page clipping.  When enabled, the rectangular frame
+which encompasses the absolute page boundaries is created, and all
+output outside of this frame is clipped.  This is really only meaningful
+when the absolute page size is smaller than the actual output page,
+where any output leakage beyond the page boundaries may be visible.
+.TP
+.B -g
+Forces the conversion of all colour information into a corresponding
+greyscale intensity, via the YIQ colour conversion matrix 
+(the Y component is used as
+the grey intensity, see an appropriate graphics text for further
+information).  This allows greyscale output to be printed on a colour
+printer, as it would appear on a 
+monochrome (black and white) printing device.
+.TP 
+.B -h
+Prints out a short help file of the options available and any defined
+defaults.
+.TP
+.B -o name
+Outputs the PostScript information into the specified file
+.I name.
+Use of this option overrides the specification of the direct printer
+name via the -P option.  If a minus sign (-) is given as the output
+filename, the PostScript output is dumped to the standard output
+channel.
+.TP
+.B -P name
+Outputs the PostScript information to the specified printer
+.I name.
+If a minus sign (-) is given as the printer name, the PostScript output
+is dumped to the standard error channel.  If no printer name is given,
+and no output file is specified using the -o option, the output is sent to
+the default printer which has been defined at the time of compilation
+(can be determined using the -h option).
+.TP
+.B -q
+Supresses the page output report which is normally printed at the end of
+processing (quiet mode).  Intended for use by programs which directly
+call
+.I sp_ps
+for PostScript diagram inclusion.
+.TP
+.B -s
+Prints the sdvi output in landscape orientation (sideways).  Default
+page sizes in
+.I splotch
+assume portrait orientation, but certain output sizes lend themselves to
+landscape.  Note: this option is not to be confused with the 
+.B rotate
+setting in sPLOTch!,
+which has the same effect but in a completely different fashion.
+.TP
+.B -x xdim
+Offsets the final output horizontally by
+.I xdim
+inches.  This is typically used to compensate for misalignments in a
+postscript printer, or to adjust the final position of the output.
+.TP
+.B -y ydim
+Offsets the final output vertically by
+.I ydim
+inches.  Note: the x and y offsets are always applied in the true
+page horizontal and vertical directions, regardless of the specification
+of the
+.I -s
+option.
+
+.SH EXAMPLE USAGE
+.LP
+splotch <splotch_file> -d 'sp_ps -q -g -Pralaser'
+.SH AUTHOR
+.LP
+Jeff Heisz
+.SH "SEE ALSO"
+splotch(1)
+
+.I sPLOTch! Users Guide
+
+.I sPLOTch! Language Reference
+.SH FILES
+.LP
+None (except for the input file).
+.SH BUGS
+.LP
+Filled polygons which exceed the internal PostScript limit of 1500 
+coordinates in the outline path are not handled correctly (standard
+lines are, however).

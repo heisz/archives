@@ -1,0 +1,162 @@
+#!/bin/sh
+echo ""
+echo "Welcome to the sPLOTch! programming environment!  The following"
+echo "demonstrations illustrate the many possible ways in which sPLOTch!"
+echo "can be used to visualize numerical data."
+
+ans=""
+while test "$ans" != "y" ; do
+
+  echo ""
+  echo "To begin with, you will require a window compatible display terminal"
+  echo "which will allow you to simultaneously view the demos and read this"
+  echo "commentary.  At present, supported environments are:"
+  echo ""
+  echo " 1) X Windows"
+  echo ""
+  echo -n "Please select the appropriate device: "
+  
+  driver=0
+  while test $driver -lt 1 -o $driver -gt 1 ; do
+    read driver
+    if test $driver -lt 1 -o $driver -gt 1 ; then
+      echo -n "Invalid choice: Please try again: "
+    fi
+  done
+  
+  echo ""
+  echo "I also need to know what kind of display you have.  Is it"
+  echo " 1) Colour"
+  echo " 2) Greyscale"
+  echo " 3) Monochrome"
+  echo ""
+  echo -n "Please select the appropriate type: "
+  
+  disptype=0
+  while test $disptype -lt 1 -o $disptype -gt 3 ; do
+    read disptype
+    if test $disptype -lt 1 -o $disptype -gt 3 ; then
+      echo -n "Invalid choice: Please try again: "
+    fi
+  done
+  
+  echo ""
+  echo -n "You have selected the "
+  case $driver in
+    1*) 
+       echo -n "X Windows driver,"
+       ;;
+  esac
+  
+  case $disptype in
+    1*)
+       echo " in colour."
+       ;;
+    2*) 
+       echo " in greyscale."
+       ;;
+    3*)
+       echo " in monochrome."
+       ;;
+  esac
+  
+  echo ""
+  echo -n "Is this correct[y]?"
+  read info
+  case "$info" in
+    n*)
+        ans="n"
+        ;;
+    *)
+        ans="y"
+        ;;
+  esac
+done
+
+animate=""
+case $driver in
+  1*)
+      case $disptype in
+        1*)
+           drvcommand="sp_x"
+           ;;
+        2*)
+           drvcommand="sp_x -g"
+           ;;
+        3*)
+           drvcommand="sp_x -m"
+           ;;
+      esac
+      animate=" -a"
+      ;;
+esac
+
+echo ""
+echo "Ok, here is a check of whether the driver program has been properly"
+echo "compiled and installed.  Assuming all is successful, there should"
+echo "shortly appear a driver test page.  If not, check that the driver"
+echo "program for the specified display has in fact been compiled and"
+echo "installed (not much point in going on if you can't see anything)."
+echo "Also note that performing a 'make dist' will have erased the driver"
+echo "test output (drv_test.sdvi)."
+echo ""
+echo "For your information, the command being used to display the sPLOTch!"
+echo -n "output is : $drvcommand.  When the page has appeared,"
+
+case $driver in
+  1*) 
+     echo " press the bye!"
+     echo "button to continue (remember this for later outputs)."
+     ;;
+esac
+
+echo ""
+$drvcommand ../drivers/drv_test.sdvi
+
+echo ""
+echo "Now testing the actual sPLOTch! program installation.  Assuming all"
+echo "is successful, an advertisement for the sPLOTch! program will appear."
+echo "If not, abort this script and repair the problem."
+echo "Note: this output is rather involved, so please be patient."
+echo ""
+splotch -o - advert.sp | $drvcommand
+
+echo ""
+echo "Congratulations!  You appear to have a successfully installed sPLOTch!"
+echo "distribution.  Now, let the demonstration begin!"
+echo ""
+echo "Press <return> to continue:"
+read ans
+clear
+echo ""
+echo "Welcome to sPLOTch! Version 2.1"
+echo "-------------------------------"
+
+echo "And hey....a pie chart is really just a bar chart in a polar"
+echo "coordinate system.  For example...."
+splotch -o - piechart.sp | $drvcommand 
+echo "sPLOTch! also provides data interpolation methods which can be"
+echo "customized by the user.  One example of this would be a field plot,"
+echo "which uses an arrow at each data point to indicate the magnitude"
+echo "and direction of the field at that point (via two other data sets)."
+echo ""
+splotch -o - curveball.sp | $drvcommand 
+echo ""
+echo "When combined with a compatible device driver, it is also possible"
+echo "to create animation sequences based on a series of output plots."
+if test "$animate" = ""; then
+  echo ""
+  echo "Unfortunately, the current device being used for these demonstrations"
+  echo "does not have this capability, and so the animation example cannot"
+  echo "be shown :("
+  echo "Press <return> to continue:"
+  read ans
+else
+  echo "For example, this demonstration is a series of fourty plots showing"
+  echo "a logo page from a changing viewing angle.  When animated, the"
+  echo "effect is quite striking (especially for those with colour)."
+  echo "Note: these animations take a lot of screen memory, and may exceed"
+  echo "available resources."
+  echo ""
+  splotch -o - animation.sp | $drvcommand $animate
+fi

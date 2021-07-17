@@ -1,0 +1,329 @@
+.\" @(#) splotch.1 2.1 sysadm@sparky.phy.queensu.ca 01/04/93
+.TH SP_X 1 "April 1, 1993" "Version 2.1" "sPLOTch! DRIVERS"
+.SH NAME
+sp_x - preview sdvi output on X Window displays
+.SH SYNOPSIS
+.B sp_x
+[
+.I options
+] [
+.I filename
+]
+.SH DESCRIPTION
+.LP
+.B
+sp_x
+reads the sdvi file
+.I filename
+produced by the sPLOTch! program and creates an X display window for
+viewing of the graphical output.  If no
+.I filename
+is given,
+.I sp_x
+reads the sdvi information from the standard input (for use as a direct
+output driver).
+.SH STANDARD OPTIONS
+.TP
+.B -a
+Activates "animation" mode.  All pages which are produced by consecutive
+.I openscreen 
+requests without intervening closescreens are considered to
+be successive frames in an animation sequence.  A 
+.I closescreen 
+or end of
+file is taken to mark the end of the animation (although additional
+animations can follow).  An additional panel will appear to provide
+controls over the animation process.
+.TP
+.B -b
+Requests that the XA_RGB_BEST_MAP be used when obtaining/installing the
+standard colourmap for the display, instead of the XA_RGB_DEFAULT_MAP.  
+This option only applies 
+to colour display devices (not monochrome or greyscale).  See the
+section on "colour" below for further discussion.
+.TP
+.B -d
+Turns on debugging output (only available if DEBUG was defined at the
+time of compilation).  Spews out reams of information which is probably
+indigestible to most users.
+.TP
+.B -g
+Forces the conversion of all colour information into a corresponding
+greyscale intensity, via the YIQ colour conversion matrix 
+(the Y component is used as
+the grey intensity, see an appropriate graphics text for further
+information).  This allows colour output to be previewed as if the
+display device were greyscale.  Of course, devices which are already
+greyscale (or monochrome) perform this conversion automatically.
+.TP 
+.B -h
+Prints out a short synopsis of the command options available.
+.TP
+.B -i
+Attempts to install a standard colourmap for the specified visual type
+if one is not available.  Using this option is identical to running
+xstdcmap(1) for the corresponding colourmap type before running the
+.I sp_x
+program.  See the section on "colour" below for
+a description of standard colourmaps (and why they should be used).  
+This option has no effect on monochrome displays.
+.TP 
+.B -m
+Forces all colour or greyscale output to be displayed using monochrome
+halftone shading (black and white only).  The resulting display
+corresponds to the output which would be obtained from a monochrome device 
+such as a conventional laser printer (although the halftoning may be
+different).  This option has no effect on displays which are already
+monochrome (but wish they were colour).
+.TP
+.B -n num
+Determines the resolution of the pattern used in the colour dithering
+process.  By default
+.I sp_x
+will use an ordered dither pattern with a resolution of either 64 or 16,
+depending on whether a standard colourmap is available and the accuracy of
+greyscale reproduction.  The higher resolution dither pattern will produce
+more shades of intermediate colours, but at the cost of increased
+processing time.  On certain displays (24 bit colour, for instance), the
+dithering process is totally unnecessary and only serves to reduce
+output performance.  The resolution setting can
+take on three values; 0 (no dithering), 16 (quick, but potentially
+ugly), and 64, which is the optimum value for monochrome displays.
+.TP
+.B -q
+Requests that drawing operations be processed quietly.  By default, the
+.I sp_x
+driver processes pointer and button events as it internally produces
+the page output, so that the 
+.B quit
+button functions during processing.  It also produces a graphical display of
+the number of drawing events which have occurred, to let the user know that
+something is indeed happening.  However, this can slow down the drawing
+process, or maybe just annoy some users, so specifying this option
+deactivates this behaviour.
+.TP
+.B -s
+Prints the sdvi output in landscape orientation (sideways).  Default
+page sizes in
+.I splotch
+assume portrait orientation, but certain output sizes lend themselves to
+landscape.  Note: this option is not to be confused with the 
+.B rotate
+setting in sPLOTch!,
+which has the same effect but in a completely different fashion.
+.SH X WINDOW OPTIONS
+Many of the following options can be specified by either a command line 
+argument or via the user's X resource database (as defined by the xrdb
+command).  If an argument can be read from the resource database, the
+resource name follows the command line definition in (parentheses).
+Note: in all cases, a command line definition will override the
+corresponding setting in the X resource database.
+.TP
+.B -display host:display[.screen]
+Requests that the output be displayed on the specified X server.  The
+optional
+.I screen
+number will be used as the default screen unless overridden by the
+-screen option below.  If this option is not given, the DISPLAY
+environment variable will be used to determine the appropriate X
+server.
+.TP
+.B -name resourcename
+Specifies the name under which resources will be found in the user's
+resource database.  This allows several different option combinations to
+be defined in the database and accessed with a single command line
+argument [Default=splotch].
+.TP
+.B -bd colour (.borderColor)
+Specifies the colour to be used for the window border [Default=black].
+.TP
+.B -bg colour (.background)
+Specifies the background colour of the displayed windows [Default=LightGrey].
+Note: this option does
+not affect the background colour of the displayed page output, which is
+controlled exclusively by the sdvi input and always defaults to white.
+.TP
+.B -bw width (.borderWidth)
+Specifies the width of the main and internal window borders, in pixels
+[Default=1].
+.TP
+.B -cc colour (.cursorColor)
+Specifies the colour of the pointer cursor [Default=MediumSlateBlue].
+.TP
+.B -dt bitmapfile (.deskTop)
+Specifies a bitmap definition to be used for tiling the window in which the
+output is displayed (desktop).  This tile should only be seen when a
+page is being prepared, or the page is smaller than the display window.
+Specifying "none" for the argument will turn off the tiling (for those
+people who are annoyed by it) [Default=the sPLOTch! icon pattern].
+.TP
+.B -fg colour (.foreground)
+Specifies the foreground colour to use for text and graphics associated
+with the sp_x driver [Default=MidnightBlue].  
+Note: this does not affect the colours used in
+producing the sdvi output.
+.TP
+.B -fn font (.font)
+Specifies the font to be used in displaying text associated with the
+sp_x driver.  If the specified font cannot be obtained, sp_x will
+attempt to use the "fixed" font [Default=7x13].
+.TP
+.B -geometry geometryinfo (.geometry)
+Specifies the initial size and location of the main window.  The
+internal page display window will be sized appropriately to fit the
+main window.  Note:  this option may be ignored by some window
+managers [Default=centered on the display with an appropriate size to
+view the entire page output].
+.TP
+.B -rv
+Specifies that reverse video is to be used, typically by swapping the
+.I default
+foreground and background colours.  Typically, this option will
+only affect monochrome devices.
+.TP
+.B -screen screennummber (.screen)
+Specifies the screen number on which the output should appear 
+[Default=default screen of display].
+.TP
+.B -title title (.title)
+Requests that the given title be used by the window manager for the
+title bar of the main window and the icon label [Default=sPLOTch!].
+.TP
+.B -vt visualtype (.visualType)
+Indicates the visual type to be used when generating the driver windows
+and colourmaps.  The possible settings are StaticColor, PseudoColor,
+StaticGray, GrayScale, TrueColor and DirectColor.  See the section on
+"colour" below for more information [Default=determined by the display].
+.TP
+.B -w winfract (.winFract)
+Specifies the display page reduction factor, overriding the value set
+using the 
+.B winfract
+option in sPLOTch!  This value allows pages which are too large for
+the display to be properly viewed in totality, or smaller pages to be
+expanded for detailed examination [Default=value obtained from the sdvi file].
+.SH PREVIEW PRINTING
+A new addition to the 
+.B sp_x
+previewer is the ability to internally
+generate printed output without having to re-run the sPLOTch! program.
+In non-animation preview mode, a
+.I Print
+button appears in the control panel which allows the page currently being
+viewed to be forwarded to a sPLOTch! printer driver for hardcopy output.
+A prompt window will appear requesting the print driver command, although
+a default is presented which (hopefully) was set appropriately when sPLOTch!
+was compiled and installed.  Note that any sPLOTch! driver program can be
+specified, not just printers, so that any method of redirecting the current
+page can be selected (including another sp_x session!).  Also note that
+multiple 
+.I Print
+passes can be done, so one could preview a page image, and then
+make a bitmap of it (using sp_bm), an HP pen output of it (using
+sp_vec), and print a PostScript hardcopy of it (using sp_ps), all from
+the X previewer.
+.SH NOTES ON USING COLOUR 
+The use of colour on a windowing display system is complicated by two
+important considerations: 1) computing displays have finite number of
+colours available to the user and 2) each application must share these
+colour resources with other applications running on the same display.
+The X Window protocol deals with these limitations through the creation
+of a "standard colourmap", which predefines the majority of the colourmap
+with a set of colours that reasonably span the entire colour space
+available.  In this fashion, an application will not necessarily be able
+to get the exact colour it desires, but should be able to obtain one
+which is "close" to the needed colour.  Also, all applications can
+utilize this standard set of colours and avoid conflicts between
+differing colourmaps (the "technicolour effect").
+
+Unfortunately, there are many (many!) types of colour displays, and
+determining the optimum type and allocation of a standard colourmap for 
+each display can be difficult.  It is important to note that only some
+of the possible combinations may be available on a certain display, and
+it may even be that a standard colourmap is not or cannot be installed.
+There are three
+.I sp_x
+options of which determine the standard colourmap to be used 
+or installed.  If the 
+.B -i
+flag is set and the specified standard colourmap
+does not exist on the display,
+.I sp_x
+will attempt to install one, in the same manner as the xstdcmap(1)
+program.  The
+.B -b
+option controls whether the "default" or "best" standard colourmap will
+be used.  Normally, a default standard colourmap will be used, which
+allocates a moderate fraction of the colourmap colours and leaves quite
+a few remaining for other applications.  If the 
+.B -b
+option is specified, the best possible standard colourmap is used, which
+typically allocates all of the colours in the colourmap and 
+(hopefully) produces better results.  Finally, the colourmap type is
+controlled by the 
+.B -vt
+(or visual type) option, which determines how pixel values are mapped
+into the colour space and whether or not the colourmap entries are fixed
+or variable.  A complete description of the visual classes and their
+effects on colourmap allocation is too
+extensive to be repeated here (see an appropriate X manual, or your
+system administrator for more information).
+
+The easiest method of determining the optimum setup is to simply
+try all combinations of the 
+.B -b
+and 
+.B -vt
+options, with the 
+.B -i
+option set, and see which ones work, or work best.  If the 
+.B -d
+option is available, the debugging information includes details on the
+access or installation of the specified standard colourmap.  Once the
+best setup is obtained, the defaults can be changed in the .Xresources
+file or through the use of a command alias.
+
+If a standard colourmap is not available or is not installed,
+.I sp_x 
+will currently allocate the set of 8 primary colour combinations (or 8
+grey shades on greyscale devices), and use
+these to produce colour sets using the highest resolution
+dithering matrix (in the same fashion
+as greyscale information is converted into monochrome pattern maps).
+However, this dithering process greatly degrades the output performance
+of 
+.I sp_x,
+so it is highly recommended that some standard colourmap be used.  The
+dithering can be disabled (with the potential for horrible output
+quality) through the use of the -n option.
+.SH EXAMPLE USAGE
+.LP
+splotch <splotch_file> -d 'sp_x -m -w 2'
+.SH AUTHOR
+.LP
+Jeff Heisz
+.SH "SEE ALSO"
+splotch(1), X(1), xstdcmap(1)
+
+.I sPLOTch! Users Guide
+
+.I sPLOTch! Language Reference
+.SH ENVIRONMENT
+.LP
+Uses the environment variable DISPLAY to determine the X server to
+connect to (if the -display option is not given).
+.SH FILES
+.LP
+None directly (except for the input file).
+
+~/.Xdefaults - the user's X resource database 
+.SH BUGS
+.LP
+Undoubtedly there are still a few in the X colour routines 
+(especially considering the author only has a monochrome display device).
+
+Additionally, the sdvi coding system does not provide information on the
+.B rotate 
+parameter.  As a result, the cursor position values are not correct for
+rotated output (although it is reasonably straightforward to calculate
+the correct values).

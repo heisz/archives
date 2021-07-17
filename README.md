@@ -9,4 +9,5 @@ posterity and reference.
 
 Things of interest in here:
 
-* *JEMCC* this was a run at building a JVM natively on the JNI interfaces
+* **splotch** my first big 'product', the scientific graph system for my thesis
+* **JEMCC** this was a run at building a JVM natively on the JNI interfaces

@@ -1,0 +1,34 @@
+.\" @(#) splotch.1 2.1 sysadm@sparky.phy.queensu.ca 01/04/93
+.TH SP_TTY 1 "April 1, 1993" "Version 2.1" "sPLOTch! DRIVERS"
+.SH NAME
+sp_tty - convert sdvi output to tty command listings (test)
+.SH SYNOPSIS
+.B sp_tty
+.SH DESCRIPTION
+.LP
+.B sp_tty 
+reads sdvi (sPLOTch!) format commands from the standard input 
+and prints out human readable interpretation of these commands to the 
+standard output.  This program is mainly intended for debugging the 
+sPLOTch! output driver, but who knows what someone might do with it,
+.SH OPTIONS
+.LP
+None (it is only for test purposes, after all).
+.SH EXAMPLE USAGE
+.LP
+splotch [splotch_options] -d sp_tty <splotch_file>
+.SH AUTHOR
+.LP
+Jeff Heisz
+.SH "SEE ALSO"
+splotch(1)
+
+.I sPLOTch! Users Guide
+
+.I sPLOTch! Language Reference
+.SH FILES
+.LP
+None again.
+.SH BUGS
+.LP
+Hopefully none here also (it is a pretty short program).

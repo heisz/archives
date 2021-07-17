@@ -1,0 +1,101 @@
+#
+# Configuration macro set for the sPLOTch! build environment.
+# Copyright (C) 1991-2005 J.M. Heisz
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# See the file named COPYRIGHT in the root directory of the source
+# distribution for specific references to the GNU General Public License,
+# as well as further clarification on your rights to use this software.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+#
+
+##########################################################################
+# "Conventional" setups using autoconf/automake/libtool/local macros
+##########################################################################
+
+AC_REVISION($Id$)dnl
+
+# Make sure someone didn't mistype the --srcdir option
+AC_INIT(src/splotch.c)
+
+# Definitions required for packaging and automake setup (and startup msg)
+PACKAGE=splotch
+VERSION=2.1
+AC_MSG_RESULT(Configuring ${PACKAGE}-Version ${VERSION})
+AC_SUBST(PACKAGE)
+AC_SUBST(VERSION)
+
+# Secret location for the standard configuration scripts (see local README)
+AC_CONFIG_AUX_DIR(configure-scripts)
+
+# Configure the automake and subdirectory make operations
+AM_INIT_AUTOMAKE(${PACKAGE}, ${VERSION})
+AC_PROG_MAKE_SET
+AC_PROG_CC
+AC_PATH_X
+# AC_SUBST(x_includes x_libraries)
+
+# We need the help of libtool to generate our shared libraries
+AM_PROG_LIBTOOL
+
+# Standard things to look for, things to include
+AC_HEADER_STDC
+
+##########################################################################
+# Compiler flags for optimization/debug determined by development mode
+##########################################################################
+AC_ARG_ENABLE(devel-mode,
+[  --enable-devel-mode     specify development mode (release|devel|rational) ],
+[
+    DEVEL_MODE=${enableval}
+],
+[
+    DEVEL_MODE=devel
+])
+if test "${DEVEL_MODE}" = "release"; then
+    # This test is very autoconf dependent, do nothing if CFLAGS was env set
+    if test "${ac_test_CFLAGS}" != "set"; then
+        if test "${GCC}" = "yes"; then
+            CFLAGS="-O2 -Wall"
+        else
+            CFLAGS=
+        fi
+    fi
+fi
+if test "${DEVEL_MODE}" = "rational"; then
+    # This mode is specific to the Solaris development environment
+    CFLAGS="-g -Wall"
+fi
+if test "${DEVEL_MODE}" = "devel"; then
+    if test "${GCC}" = "yes"; then
+        # Add the full warning sets
+        CFLAGS="${CFLAGS} -g -Wall"
+    fi
+fi
+
+##########################################################################
+
+# All done, set up all of the configuration specific files
+AC_OUTPUT(
+Makefile 
+src/Makefile
+src/localdefs.h
+drivers/Makefile
+drivers/dev_bm/Makefile
+drivers/dev_ps/Makefile
+drivers/dev_tty/Makefile
+drivers/dev_vec/Makefile
+drivers/dev_x/Makefile
+)

@@ -1,0 +1,7 @@
+options aspect=1 hasize=100apct;
+openscreen;
+doodle;
+1 50 50 100 100 0 1.5 1 0:0:0 1 none
+3 50 65 15pct center f=italicc 'sPLOTch!'
+3 50 35 15pct center f=italicc 'Version 2.1'
+-10

@@ -1,0 +1,164 @@
+.\" @(#) splotch.1 2.1 sysadm@sparky.phy.queensu.ca 01/04/93
+.TH SP_VEC 1 "April 1, 1993" "Version 2.1" "sPLOTch! DRIVERS"
+.SH NAME
+sp_vec - view sdvi output on vector based devices
+.SH SYNOPSIS
+.B sp_vec
+[
+.I options
+] [
+.I filename
+]
+.SH DESCRIPTION
+.LP
+.B
+sp_vec
+reads the sdvi file
+.I filename
+produced by the sPLOTch! program
+and outputs the corresponding graphical commands for several 
+vector based devices.  The output is usually routed to the standard
+output for previewing (Tek devices) or eavesdrop plotters (HP devices),
+although other output files/devices may be specified.
+If no 
+.I filename
+is given,
+.I sp_vec
+reads the sdvi information from the standard input (for use as a direct
+output driver).
+.SH OPTIONS
+.TP
+.B -d device
+Specifies the specific vector output device to be used.  The available
+devices are
+.I tek,
+which generates Tektronix 4014(?) compatible graphics instructions, and
+.I hpgl,
+which generates HPGL plotting instructions suitable for HP plotters.
+For the remainder of this man description, these devices are referred 
+to as Tek and HPGL, respectively.
+.TP
+.B -e
+Prefixes all Tek special commands by the ESCape character.  For most
+Tek devices, this is not necessary, but some emulators require this
+prefix.  The most prevalent symptom of this option being specified
+incorrectly is the appearance of extraneous output lines on the display,
+as if the drawing "pen" had never lifted from the output surface.  This
+option is ignored for HPGL output devices.
+.TP
+.B -h
+Prints out a short summary of all available options.
+.TP
+.B -i string
+Specifies a
+.I string
+of initialization commands
+for an HPGL device.  The contents of this string are sent to the
+printer immediately
+following the first eavesdrop instructions (if included) and prior to
+any plotting commands.  Any number signs (#) which are included in the
+string are converted to ESCape characters (for simplicity).  For
+example, one could completely reset the plotter handshaking by using the
+initialization string 
+.I #.R
+This option is ignored for the Tek output device.
+.TP
+.B -n
+Indicates that any colour information in the sdvi file is to be ignored
+(ie. the output is in mono).  This option is only examined for HPGL
+devices, as Tek output always ignores colour information.
+.TP
+.B -o name
+Outputs HPGL instructions into the specified file
+.I name.
+Tek instructions are always sent to the standard output channel.
+Use of this option overrides the specification of the direct printer
+name via the -P option.  If a minus sign (-) is given as the output
+filename, the HPGL output is dumped to the standard output
+channel.
+.TP
+.B -P name
+Outputs the HPGL information to the specified printer
+.I name.
+If a minus sign (-) is given as the printer name, the HPGL output
+is dumped to the standard error channel.  If no printer name is given,
+and no output file is specified using the -o option, the HPGL output is
+directed to the standard output, which is where Tek output is always
+sent.  Warning: print spoolers will typically collect the entire output
+prior to passing it on to the plotter.  If this is the case, any prompting
+to change paper/pens will be somewhat meaningless.
+.TP
+.B -s
+Prints the sdvi output in landscape orientation (sideways).  Default
+page sizes in
+.I splotch
+assume portrait orientation, but certain output sizes lend themselves to
+landscape.  Note: this option is not to be confused with the 
+.B rotate
+setting in sPLOTch!,
+which has the same effect but in a completely different fashion.  This
+option is ignored for the HPGL device, which is intended for hardcopy
+output.
+.TP
+.B -t time
+Adjusts the timeout period during which the user can view output or change
+paper/pens.  This timeout is only necessary when the 
+.I sp_vec
+driver is reading directly from the standard input, in which case it is
+impossible to read the keyboard for a <return> character.  Otherwise,
+the user is prompted for the output to continue.  The specified
+.I time
+is measured in seconds [Default=30].
+.TP
+.B -x xdim
+Offsets the final output horizontally by
+.I xdim
+inches.  This is typically used to adjust the final position of the output
+on the paper.  Note: due to the curious orientation of the HPGL plotting
+surface on the paper, all output is aligned in the lower right corner of
+the page, and this offset shifts the output to the left.  This option is
+ignored for the Tek device.
+.TP
+.B -y ydim
+Offsets the final output vertically by
+.I ydim
+inches.  Note: the x and y offsets are always applied in the true
+page horizontal and vertical directions, regardless of the specification
+of the
+.I -s
+option.  This option is ignored for the Tek device.
+.TP
+.B -Y
+Indicates that the HPGL plotting device intended for output is connected
+to a terminal in
+.I eavesdrop
+mode.  This is usually the case when the HPGL codes are routed to the
+standard output channel (which is the default).  
+All HPGL instructions are delimited
+by the ESC.Y and ESC.Z sequences, which brings the plotter on and off-line
+automatically.  Note: the plotter's eavesdrop switch must be set to the
+Y position for this automatic switching to function properly (see the owners
+manual for the plotter being used).  This option is ignored for the 
+Tek device.
+
+.SH EXAMPLE USAGE
+.LP
+splotch <splotch_file> -d 'sp_vec -d hpgl -Y'
+.SH AUTHOR
+.LP
+Jeff Heisz
+.SH "SEE ALSO"
+splotch(1)
+
+.I sPLOTch! Users Guide
+
+.I sPLOTch! Language Reference
+.SH FILES
+.LP
+None (except for the input file).
+.SH BUGS
+.LP
+The Tek coding works fine, but the author has limited test facilities
+for the HPGL sequences and as a result these outputs have not been fully
+tested.  Unfortunately,
+line width changes are ignored for both devices, as are solid filled polygons.

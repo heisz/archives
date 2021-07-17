@@ -1,0 +1,252 @@
+.\" @(#) splotch.1 2.1 sysadm@sparky.phy.queensu.ca 01/04/93
+.TH SPLOTCH 1 "April 1, 1993" "Version 2.1" "sPLOTch!"
+.SH NAME
+splotch \- Scientific PLOTting Command Heirarchy
+.SH SYNOPSIS
+.B splotch
+.BR
+[options] [control.program]
+.br
+
+.B splotch -d <device_driver> [options] < data.file
+.SH DESCRIPTION
+.LP
+.I sPLOTch!
+is a command interpreter which is designed to produce scientific
+graphs and plots, much like PLOT(1).  Through the use of a powerful
+control language, the user has access to many different data
+interpolation methods, graphical layouts, labelling fonts, etc.,
+which can be used to produce publication quality data plots
+for a number of output devices.  The output of the 
+.I splotch
+program is a device independent file format referred to as 
+.B sdvi,
+which can be fed to various device drivers for previewing and hard copy
+output.  It can also be saved into a file, allowing one to preview the
+output and then print it without having to reprocess the corresponding
+data files.
+
+Any command line argument which does not begin with a minus sign (-) is
+taken to be the control program, which is to be the source of the
+sPLOTch! processing commands.  However, only the 
+.I last
+such entry will be processed (ie. only one control program can be run
+directly from the command line).
+If no control program is specified (as in the second
+case above), and a pipe or interactive source has not been indicated (via the 
+.I -p
+or
+.I -i
+options), a default command program will be used instead.  The default
+program which comes with the sPLOTch! distribution is designed to read
+two column data sets, however, the user can write their own and
+reference it by the SPLOTCH_DEF environment variable (see below).  In
+any case, a setup file titled
+.I .splotchrc
+and contained in the user's home directory is input first, to allow
+personal tailoring of the internal sPLOTch! defaults.  The actual command 
+language is too extensive to be listed here; for more information about 
+writing sPLOTch! code, refer to the language and user reference
+manuals.
+.SH OPTIONS
+.TP
+.B -d <device_driver>
+Sends the sPLOTch! sdvi output stream to the indicated <device_driver>.
+The driver program should be located in the user's executable PATH, and
+is run by the Bourne shell.  Several examples of driver programs are
+.I sp_x
+for X Window previewing,
+.I sp_ps
+for PostScript output and
+.I sp_vec
+for vector display devices (such as Tektronix displays).
+This option is identical to using an executable argument in the
+sPLOTch!
+.B device
+command, but the use of a separate command line option is more
+straightforward.  If the driver program requires arguments, the entire
+driver command must typically be quoted to be passed as a single
+argument.  For example,	the command line entry which would run the X
+Window driver with a bunch of options (see sp_x(1)) might look like
+
+.CE
+-d 'sp_x -r -w 2 -display sparky:0 -a -b'
+
+Hence the obvious appeal of 'aliasing' the original sPLOTch!
+command.  This option is completely overridden by specifying the
+.I -o
+option (below).
+.TP
+.B -D name[=value]
+Predefines the sPLOTch! macro
+.I name
+with the given
+.I value.
+If the value is not given, the macro is defined with a null entry.  If
+spaces are required in the macro definition, the definition string
+should be surrounded in quotes, as in
+.I -D 'name=Hi mom'.
+.TP
+.B -h
+Produces a short synopsis of the sPLOTch! command line options.
+.TP
+.B -i
+Initializes sPLOTch! to run in interactive mode.  In this instance, the
+control program is read from the keyboard line by line, with immediate
+error feedback and display results.  Basic command recall and line editting
+is supported, as is a recording function which allows the interactive
+construction of a sPLOTch! control program.
+.TP
+.B -j
+A short form for
+.I -o /dev/null,
+which sends all sdvi output into oblivion, and is really intended for
+several programs used in the development and testing of the sPLOTch!
+programs.
+.TP
+.B -l
+Forces sPLOTch! to create a session log file (which is done by 
+default) even if the nolog option is set (see below).  The error log
+(with associated program warnings) is placed in a file whose name is the
+control program name with
+.I .log
+appended.  If there is no control program, the errors will appear in
+either
+.I default.log
+or
+.I pipeline.log,
+depending on the sPLOTch! operating mode (interactive processing does not
+produce an error log file).  This option may be overridden by the
+.I -t
+option below.
+.TP
+.B -n
+Disables the default action of producing a session log (unless -l is
+set).  Experienced users can keep their filesystem from becoming
+cluttered by creating the alias splotch -> 'splotch -n'.
+.TP
+.B -o <name>
+Sends the sdvi output into the indicated file <name>.  This option will
+override any device drivers specified using the 
+.I -d
+option.  In the event neither option is given, the sdvi output is sent
+to a file whose name is the control program name with .sdvi appended; if
+there is no control program, the filename is either
+.I default.sdvi,
+.I pipeline.sdvi,
+or 
+.I interactive.sdvi,
+depending on the sPLOTch! operating mode.
+.TP
+.B -p
+Allows sPLOTch! to be contained within a pipe, by making the
+program search for its command program from the standard input.  In this
+case, the error log is written into the file
+.I pipeline.log.
+.TP
+.B -t
+Runs sPLOTch! in trace mode.  The error output is sent to the stderr
+channel, allowing the user to follow the processing of the command
+program.  This is useful in finding where long winded programs are
+spending most of their processing time, however, it is important to
+note that the individual commands are usually flushed to the error
+output
+.I after
+they are done processing.
+.TP
+.B -w
+Allows one to "watch" the output as it is being generated.  The sdvi
+buffer is flushed after each graphics instruction, which forces window
+based drivers to update the display.  This is similar to the 
+.I -z
+option, but does not require a keypress after each operation.  Note:
+these continual update requests will enlarge the sdvi file, and more
+than likely slow down the output display.
+.TP
+.B -v
+Outputs the version and patch numbers of the sPLOTch! program being used.
+.TP
+.B -x number
+Creates a file splotch.debug.log, which contains debugging
+information (most likely only understandable by the author) of
+the requested debugging level
+.I number.
+.TP
+.B -z
+Forces sPLOTch! to handle graphical processing "on-the-fly", by flushing
+the sdvi buffer and waiting for a <return> entry after every graphics
+output.  This is only intended for debugging purposes, and should only
+be used with compatible device drivers (at the moment, only sp_x(1)
+is).
+.TP
+.B -
+A lone minus sign on the command line indicates the end of the program
+arguments, and the beginning of the external command macros.  Each
+command line entry following the minus sign can be accessed by the
+sPLOTch! macros $0, $1, $2, etc., with $0 representing the first entry
+after the minus.
+.SH EXAMPLE
+.LP
+The simplest way to use sPLOTch! is to let the default program
+(splotch.dft) handle all of the plotting defaults.  Assuming
+that the file
+.I datafilename
+contains two column data (in the form: xvalue yvalue),
+the data can plotted by the command
+
+.CE 
+splotch -d <device_driver> < datafilename
+
+where the device_driver argument is one of the available output
+drivers.  If there are multiple curves to be plotted, they
+can be separated by lines containing only the word 
+.I end,
+or with a number sign (#) at the beginning (allows AXIS style
+data to be read).  Up to 20 different curves can be input in 
+this manner.
+
+.SH AUTHOR
+.LP
+Jeff Heisz
+.SH "SEE ALSO"
+plot(1), sp_x(1), sp_ps(1), sp_vec(1), sp_tty(1), sp_bm(1)
+
+.I sPLOTch! Users Guide
+
+.I sPLOTch! Language Reference
+.SH ENVIRONMENT
+.TP 15
+.SB HOME
+The user's home directory name is accessed to expand the ~ character in
+specified filename.
+.TP
+.SB SPLOTCH_DEF
+The name of the default sPLOTch! control program which is to be run if
+no program is given on the command line and the -p or -i options are not set.
+.TP
+.SB SPLOTCH_FONTS
+The file which contains the layout codes for the sPLOTch! font sets.
+.TP
+.SB SPLOTCH_PATHS
+A series of colon separated directories, which are successively scanned
+when searching for a sPLOTch! command program.
+.LP
+Any other environment variables are accessible in the sPLOTch! program
+through the use of appropriate command macros (see the Language
+Reference for more information).
+.SH FILES
+.TP
+.I ~/.splotchrc 
+The user's sPLOTch! initialization program.
+.TP
+.I /usr/local/splotch.dft (typically)
+The default sPLOTch! command file.
+.TP
+.I /usr/local/splotch.fnt (typically)
+The sPLOTch! font catalogue.
+.SH BUGS
+.LP
+Undoubtedly, there must be a number of them (I can't be that
+great a programmer).  However, there are no glaring problems with the
+code that haven't already been fixed (although it would be nice to
+implement filled polygon clipping totally).

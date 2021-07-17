@@ -1,0 +1,87 @@
+
+Installing sPLOTch! Version 2.1
+-------------------------------
+
+  Here is the procedure for installing the sPLOTch! executables and
+support files.
+
+1) Change to the `src' directory.  Edit the file 'localdef.h' to
+configure various include files, device limits, etc. according to the
+specific system which you are compiling sPLOTch! for.  There are a
+number of machines for which this has already been done, and the
+corresponding setups are contained in the file (see the documentation
+included in the file for more information).  If your machine is
+different, these can be used as a template for the definitions.
+
+  Once the file has been edited, you can check it by doing a 'make lint'
+in the `src' directory.  There should be only minor warnings, anything
+major is probably a result of some incorrect definition in 'localdef.h'.
+Note: on some machines (like the RS6000), there can be a LOT of
+warnings, a result of the code not being true ANSI standard.
+
+2)  Move back to the main directory and edit the 'Makefile'.  Most of the
+entries are fairly obvious - see the documentation included in the file
+for more information.  In particular, be sure to select output device
+drivers (see 3) which are appropriate to your system.  Also, be sure to 
+properly select the directory into which the support files are placed.  
+If you should choose to move these files later, you will have to recompile
+sPLOTch! so it can find them (or use the SPLOTCH_DEF and SPLOTCH_FONT
+environment variables to override the defaults).
+
+3)  Several of the individual drivers have compilation options which are
+set in their specific Makefiles.  See the file README.drivers for
+information on selecting which drivers are appropriate for your system,
+as well as more specific setup instructions for the individual drivers.
+
+4)  Compile the sPLOTch! executables with the command:
+
+       make
+
+5)  Assuming the compilation goes ok, all that remains is the
+installation of the executable programs, support files and man pages.
+Become superuser (root), and use the command
+
+       make install
+
+to install the executable program, device drivers and support files.  If
+the specified directories do not exist, the make program will attempt to
+create them.  To install the manual pages, use the command
+
+       make install.man
+
+  The sPLOTch! package is now fully installed.
+
+Testing the sPLOTch! Program
+----------------------------
+
+  To test the operation of the installed sPLOTch! package, one can run
+the demonstration package which is included in this distribution.
+Change to the 'examples' directory, and run the shell script RUNME.  
+The script will prompt for any information required to properly display
+the demonstration outputs.
+
+  If you do not have one of the display devices needed to properly view
+the demos, you can still run each of the demonstration programs
+individually.  To test an output driver, there is a file created in the
+`drivers' directory called 'drv_test.sdvi'.  One can attempt to view
+this file using one of the local device drivers, and the result should
+be a test page consisting of a set of colour wheels.  To test the
+sPLOTch! program itself, any of the control programs contained in the
+`examples' directory can be run (see the man pages for instructions on
+running sPLOTch!).  All of the demonstration programs are easily
+identifiable, as they all end in the suffix '.sp'.
+
+Cleaning up the Distribution
+----------------------------
+
+  To clean up after all of this, go to the top directory (the one
+containing this file) and use the command
+
+   make clean
+
+which will erase all of the compilation files, but not the final
+executables or support files.  To clean up even more, use the command
+
+   make dist
+
+which will erase everything not included in the original distribution.

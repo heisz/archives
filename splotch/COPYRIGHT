@@ -1,0 +1,23 @@
+$Id$
+
+The majority of the code contained in this distribution is the work/intellectual
+property of Jeff Heisz and is distributed under the GNU General Public License.
+Refer to the file named COPYING in the root of this distribution for a copy
+of the GPL and the associated terms of this distribution.
+
+3rd Party Copyrights
+--------------------
+The original font catalog as distributed with sPLOTch! was obtained through
+3rd party.  The legal agreements for the usage/distribution of the font data
+specify that the following acknowledgements must be included:
+
+- The Hershey Fonts were originally created by Dr.
+        A. V. Hershey while working at the U. S.
+        National Bureau of Standards.
+- The format of the Font data in this distribution
+        was originally created by
+                James Hurt
+                Cognition, Inc.
+                900 Technology Park Drive
+                Billerica, MA 01821
+                (mit-eddie!ci-dandelion!hurt)

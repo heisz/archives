@@ -1,0 +1,83 @@
+   While the update to version 2 is designed to be as reverse
+compatible as possible, there are a few changes that reflect the
+ackward way in which the original system was designed.
+
+1)  First and foremost...the output drivers are now separate programs.
+Due to the increasing number of options, this was inevitable...and now
+that it is done, the results are very nice.  One still uses the -d
+option, but now one specifies a device driver command rather than
+a device name.  At present, the drivers are
+
+   sp_x - the X windows driver
+   sp_ps - the postscript driver
+   sp_vec - the Tek40XX/HPGL driver
+   sp_tty - a test driver
+   sp_bm - a bitmap format driver
+
+  Read the man pages for each of these to find all of the options.  If
+you need to pass these, enclose them in single quotes on the command
+line - ie.
+
+   splotch -d 'sp_x -w 2 -font 8x16 -vt StaticColor' my_data.sp
+              --------------------------------------
+              this whole thing is the driver command
+
+(one doesn't really need all of those options...it's just an example)
+
+  If you don't give a driver, splotch will create a .sdvi file for you
+(usually tacked onto the end of the program name).  You can feed this
+into the driver, in the same way TeX produces .dvi files for previewers/
+printers.
+
+2) At the urging of several people, data functions to be plotted have
+been rewritten in a more human understandable form...now the entries in
+vars, rvars and contour statements are:
+
+     y(x)   instead of x*y   -- single line
+     y(x,c) instead of x*y=c -- set of lines indexed by c	
+     z(x,y) instead of x*y=z -- a contouring surface
+
+3) Speaking of contours, the CONTAX command is no more...it is now
+included in the contour command as an AXIS value, e.g. instead of
+
+      cont=(x*y=z) contax=3
+
+you now use
+
+      cont=(z(x,y) axis=3)
+
+This allows different axes to be given for multiple contour/scatter
+plots in a single plot function.
+
+4) LVREF and HVREF are no longer valid, and the linestyles are now in
+the VREF and HREF commands, ie.
+
+  href=3.0 lhref=1   now looks like  href=(3.0, 1)
+  vref=2.0 lvref=12  now looks like  vref=(2.0, 12)
+
+5) There is no NOBORDER option...now specify border=none
+
+6) The repeat command in symbol definitions is now moved into the line
+command, ie.
+
+  line=3 repeat=5pct   now is written   line=(3 repeat=5pct)
+
+7) A minor note: the text HEIGHT definition is slightly off, so that
+characters will come out a little smaller than in sPLOTch! 1.0....this
+shouldn't be a real problem, but you can get the original height back
+by multiplying the old height by 1.5.  This is done so that 10pt type
+is actually 10 points tall.
+
+8) Several interpolation symbols have been changed for the better(?).
+The verr1, herr1, vbarw1 and hbarw1 symbols no longer have the number in
+the interpolation arguement.  These are now called verr, herr, vbarfix
+and hbarfix, and the length argument is now given in a SPECIAL command,
+i.e.
+
+   before:  int=herr10
+   now   :  int=herr special=1pct
+
+
+That should be it....not too bad.  And the command language has now been
+carefully designed so further upgrades should be completely backwards 
+compatible (maybe?).

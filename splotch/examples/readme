@@ -1,0 +1,14 @@
+  This is the sPLOTch! Version 2.1 demonstration gallery.  The set of
+control programs contained in this directory (all ending with the .sp
+suffix) demonstrate the various features of the sPLOTch! programming
+language.  Many of these demonstration programs originate from the
+Examples section of the sPLOTch! User's Guide.
+
+  There is an automatic demonstration script included in this directory
+which should be used to view these programs as a set, entitled RUNME.
+This is a shell program, and must be run using the Bourne shell
+processor sh, ie.
+
+/bin/sh RUNME
+
+  Enjoy the show!

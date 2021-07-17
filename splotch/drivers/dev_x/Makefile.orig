@@ -1,0 +1,43 @@
+#
+#  Makefile for the sPLOTch! X Window driver (Version 2.1)
+#
+SHELL=/bin/sh
+#
+# Uncomment the following and set properly if not using central make
+#
+#XINCS = -I/usr/X11R5/include
+#XLIB = -L/usr/X11R5/lib 
+#X11OPTS=$(XINCS) $(XLIB) -g
+#
+#  In the following line, add -DDEBUG for debugging possibilities,
+#    and -DNOXMU to not use the Xmu libraries (adjust XCOMP line
+#    accordingly by removing the lXmu link)
+#
+#  The Xmu libraries allow sp_x to self-install a standard colourmap.
+#    If NOXMU is set, this will be disabled (for bad compiling libraries).
+#
+XDEBUG=-DDEBUG -DNOXMU
+#XDEBUG=-DDEBUG
+
+XCOMP=$(X11OPTS) -lX11 -lm
+#XCOMP=$(X11OPTS) -lXmu -lXt -lX11 -lm
+
+all: sp_x
+	if test ! -d ../bin ; \
+	then mkdir ../bin ; \
+	fi
+	cp sp_x ../bin
+	if test ! -d ../man ; \
+	then mkdir ../man ; \
+	fi
+	cp sp_x.1 ../man
+
+sp_x : sp_x.c ../sdvi.h ../common.c
+	$(CC) -o sp_x sp_x.c $(COPTS) $(XDEBUG) $(XCOMP)
+	strip sp_x
+
+lint:
+	lint sp_x.c -I/usr/X11R5/include
+
+clean:
+	rm -f sp_x
